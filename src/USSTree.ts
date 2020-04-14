@@ -434,6 +434,34 @@ export class USSTree extends ZoweTreeProvider implements IZoweTree<IZoweUSSTreeN
         const favoriteSearchPattern = /^\[.+\]\:\s.*\{ussSession\}$/;
         const directorySearchPattern = /^\[.+\]\:\s.*\{directory\}$/;
         const lines: string[] = this.mHistory.readFavorites();
+        let profilesInFavorites = [];
+        // Get all profiles in use within favorites
+        lines.forEach((line) => {
+            const profileName = line.substring(1, line.lastIndexOf("]"));
+            let profileFavNode;
+            try {
+                if (!profilesInFavorites.includes(profileName)) {
+                    profilesInFavorites.push(profileName);
+                    const sesName = line.substring(1, line.lastIndexOf("]")).trim();
+                    const profile = Profiles.getInstance().loadNamedProfile(sesName);
+                    const session = ZoweExplorerApiRegister.getUssApi(profile).getSession();
+                    profileFavNode = new ZoweUSSNode(profileName, vscode.TreeItemCollapsibleState.Collapsed,
+                        this.mFavoriteSession, session, null, false, profileName);
+                }
+                this.mFavorites.push(profileFavNode);
+            } catch (e) {
+                const errMessage: string =
+                    localize("initializeUSSFavorites.error.profile1",
+                        "Error: You have Zowe USS favorites that refer to a non-existent CLI profile named: ") + profileName +
+                    localize("intializeUSSFavorites.error.profile2",
+                        ". To resolve this, you can create a profile with this name, ") +
+                    localize("initializeUSSFavorites.error.profile3",
+                        "or remove the favorites with this profile name from the Zowe-USS-Persistent setting, which can be found in your ") +
+                    getAppName(extension.ISTHEIA) + localize("initializeUSSFavorites.error.profile4", " user settings.");
+                errorHandling(e, null, errMessage);
+                return;
+            }
+        });
         lines.forEach((line) => {
             const profileName = line.substring(1, line.lastIndexOf("]"));
             const nodeName = (line.substring(line.indexOf(":") + 1, line.indexOf("{"))).trim();
@@ -441,48 +469,103 @@ export class USSTree extends ZoweTreeProvider implements IZoweTree<IZoweUSSTreeN
             try {
                 const profile = Profiles.getInstance().loadNamedProfile(sesName);
                 const session = ZoweExplorerApiRegister.getUssApi(profile).getSession();
-                let node: ZoweUSSNode;
-                if (directorySearchPattern.test(line)) {
-                    node = new ZoweUSSNode(nodeName,
-                        vscode.TreeItemCollapsibleState.Collapsed,
-                        this.mFavoriteSession, session, "",
-                        false, profileName);
-                } else if (favoriteSearchPattern.test(line)) {
-                    const label = "[" + sesName + "]: " + nodeName;
-                    node = new ZoweUSSNode(label, vscode.TreeItemCollapsibleState.None,
-                        this.mFavoriteSession, session, null, false, profileName);
-                    node.contextValue = extension.USS_SESSION_CONTEXT;
-                    node.fullPath = nodeName;
-                    node.label = node.tooltip = label;
-                    // add a command to execute the search
-                    node.command = { command: "zowe.uss.fullPath", title: "", arguments: [node] };
-                } else {
-                    node = new ZoweUSSNode(nodeName,
-                        vscode.TreeItemCollapsibleState.None,
-                        this.mFavoriteSession, session, "",
-                        false, profileName);
-                    node.command = {command: "zowe.uss.ZoweUSSNode.open",
-                                    title: localize("initializeUSSFavorites.lines.title", "Open"), arguments: [node]};
-                }
-                node.contextValue = contextually.asFavorite(node);
-                const icon = getIconByNode(node);
-                if (icon) {
-                    node.iconPath = icon.path;
-                }
-                this.mFavorites.push(node);
-            } catch(e) {
+                profilesInFavorites.forEach((theProfile) => {
+                    if (profileName === theProfile.profileName) {
+                        let node: ZoweUSSNode;
+                        if (directorySearchPattern.test(line)) {
+                            node = new ZoweUSSNode(nodeName,
+                                vscode.TreeItemCollapsibleState.Collapsed,
+                                theProfile, session, "",
+                                false, profileName);
+                        } else if (favoriteSearchPattern.test(line)) {
+                            const label = "[" + sesName + "]: " + nodeName;
+                            node = new ZoweUSSNode(label, vscode.TreeItemCollapsibleState.None,
+                                theProfile, session, null, false, profileName);
+                            node.contextValue = extension.USS_SESSION_CONTEXT;
+                            node.fullPath = nodeName;
+                            node.label = node.tooltip = label;
+                            // add a command to execute the search
+                            node.command = { command: "zowe.uss.fullPath", title: "", arguments: [node] };
+                        } else {
+                            node = new ZoweUSSNode(nodeName,
+                                vscode.TreeItemCollapsibleState.None,
+                                theProfile, session, "",
+                                false, profileName);
+                            node.command = {
+                                command: "zowe.uss.ZoweUSSNode.open",
+                                title: localize("initializeUSSFavorites.lines.title", "Open"), arguments: [node]
+                            };
+                        }
+                        node.contextValue = contextually.asFavorite(node);
+                        const icon = getIconByNode(node);
+                        if (icon) {
+                            node.iconPath = icon.path;
+                        }
+                        theProfile.children.push(node);
+                    }
+                });
+            } catch (e) {
                 const errMessage: string =
-                localize("initializeUSSFavorites.error.profile1",
-                    "Error: You have Zowe USS favorites that refer to a non-existent CLI profile named: ") + profileName +
+                    localize("initializeUSSFavorites.error.profile1",
+                        "Error: You have Zowe USS favorites that refer to a non-existent CLI profile named: ") + profileName +
                     localize("intializeUSSFavorites.error.profile2",
-                    ". To resolve this, you can create a profile with this name, ") +
+                        ". To resolve this, you can create a profile with this name, ") +
                     localize("initializeUSSFavorites.error.profile3",
-                    "or remove the favorites with this profile name from the Zowe-USS-Persistent setting, which can be found in your ") +
+                        "or remove the favorites with this profile name from the Zowe-USS-Persistent setting, which can be found in your ") +
                     getAppName(extension.ISTHEIA) + localize("initializeUSSFavorites.error.profile4", " user settings.");
                 errorHandling(e, null, errMessage);
                 return;
             }
         });
+        // lines.forEach((line) => {
+        //     const profileName = line.substring(1, line.lastIndexOf("]"));
+        //     const nodeName = (line.substring(line.indexOf(":") + 1, line.indexOf("{"))).trim();
+        //     const sesName = line.substring(1, line.lastIndexOf("]")).trim();
+        //     try {
+        //         const profile = Profiles.getInstance().loadNamedProfile(sesName);
+        //         const session = ZoweExplorerApiRegister.getUssApi(profile).getSession();
+        //         let node: ZoweUSSNode;
+        //         if (directorySearchPattern.test(line)) {
+        //             node = new ZoweUSSNode(nodeName,
+        //                 vscode.TreeItemCollapsibleState.Collapsed,
+        //                 this.mFavoriteSession, session, "",
+        //                 false, profileName);
+        //         } else if (favoriteSearchPattern.test(line)) {
+        //             const label = "[" + sesName + "]: " + nodeName;
+        //             node = new ZoweUSSNode(label, vscode.TreeItemCollapsibleState.None,
+        //                 this.mFavoriteSession, session, null, false, profileName);
+        //             node.contextValue = extension.USS_SESSION_CONTEXT;
+        //             node.fullPath = nodeName;
+        //             node.label = node.tooltip = label;
+        //             // add a command to execute the search
+        //             node.command = { command: "zowe.uss.fullPath", title: "", arguments: [node] };
+        //         } else {
+        //             node = new ZoweUSSNode(nodeName,
+        //                 vscode.TreeItemCollapsibleState.None,
+        //                 this.mFavoriteSession, session, "",
+        //                 false, profileName);
+        //             node.command = {command: "zowe.uss.ZoweUSSNode.open",
+        //                             title: localize("initializeUSSFavorites.lines.title", "Open"), arguments: [node]};
+        //         }
+        //         node.contextValue = contextually.asFavorite(node);
+        //         const icon = getIconByNode(node);
+        //         if (icon) {
+        //             node.iconPath = icon.path;
+        //         }
+        //         this.mFavorites.push(node);
+        //     } catch(e) {
+        //         const errMessage: string =
+        //         localize("initializeUSSFavorites.error.profile1",
+        //             "Error: You have Zowe USS favorites that refer to a non-existent CLI profile named: ") + profileName +
+        //             localize("intializeUSSFavorites.error.profile2",
+        //             ". To resolve this, you can create a profile with this name, ") +
+        //             localize("initializeUSSFavorites.error.profile3",
+        //             "or remove the favorites with this profile name from the Zowe-USS-Persistent setting, which can be found in your ") +
+        //             getAppName(extension.ISTHEIA) + localize("initializeUSSFavorites.error.profile4", " user settings.");
+        //         errorHandling(e, null, errMessage);
+        //         return;
+        //     }
+        //});
     }
 
     public async addRecall(criteria: string) {
