@@ -128,6 +128,11 @@ export class ZoweUSSNode extends ZoweTreeNode implements IZoweUSSTreeNode {
      * @returns {Promise<IZoweUSSTreeNode[]>}
      */
     public async getChildren(): Promise<IZoweUSSTreeNode[]> {
+        if (this.label.includes("Favorites") && contextually.isSession(this)) {
+            let a = this.children;
+            return this.children;
+        }
+
         if ((!this.fullPath && contextually.isSession(this)) ||
             (this.contextValue === extension.DS_TEXT_FILE_CONTEXT || // TODO this sequence makes no sense why text file or binary when a favorite?.
                 this.contextValue === extension.DS_BINARY_FILE_CONTEXT + extension.FAV_SUFFIX)) {

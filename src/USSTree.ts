@@ -435,10 +435,10 @@ export class USSTree extends ZoweTreeProvider implements IZoweTree<IZoweUSSTreeN
         const directorySearchPattern = /^\[.+\]\:\s.*\{directory\}$/;
         const lines: string[] = this.mHistory.readFavorites();
         let profilesInFavorites = [];
+        let profileFavNode;
         // Get all profiles in use within favorites
         lines.forEach((line) => {
             const profileName = line.substring(1, line.lastIndexOf("]"));
-            let profileFavNode;
             try {
                 if (!profilesInFavorites.includes(profileName)) {
                     profilesInFavorites.push(profileName);
@@ -449,8 +449,8 @@ export class USSTree extends ZoweTreeProvider implements IZoweTree<IZoweUSSTreeN
                         this.mFavoriteSession, session, null, false, profileName);
                     profileFavNode.contextValue = extension.USS_SESSION_CONTEXT;
                     profileFavNode.fullPath = "";
+                    this.mFavorites.push(profileFavNode);
                 }
-                this.mFavorites.push(profileFavNode);
             } catch (e) {
                 const errMessage: string =
                     localize("initializeUSSFavorites.error.profile1",
@@ -472,17 +472,18 @@ export class USSTree extends ZoweTreeProvider implements IZoweTree<IZoweUSSTreeN
                 const profile = Profiles.getInstance().loadNamedProfile(sesName);
                 const session = ZoweExplorerApiRegister.getUssApi(profile).getSession();
                 profilesInFavorites.forEach((theProfile) => {
-                    if (profileName === theProfile.profileName) {
+                    if (profileName === theProfile) {
                         let node: ZoweUSSNode;
+                        profileFavNode = this.mFavorites.find((favProfile) => favProfile.getProfileName() === profileName);
                         if (directorySearchPattern.test(line)) {
                             node = new ZoweUSSNode(nodeName,
                                 vscode.TreeItemCollapsibleState.Collapsed,
-                                theProfile, session, "",
+                                profileFavNode, session, "",
                                 false, profileName);
                         } else if (favoriteSearchPattern.test(line)) {
                             const label = "[" + sesName + "]: " + nodeName;
                             node = new ZoweUSSNode(label, vscode.TreeItemCollapsibleState.None,
-                                theProfile, session, null, false, profileName);
+                                profileFavNode, session, null, false, profileName);
                             node.contextValue = extension.USS_SESSION_CONTEXT;
                             node.fullPath = nodeName;
                             node.label = node.tooltip = label;
@@ -491,7 +492,7 @@ export class USSTree extends ZoweTreeProvider implements IZoweTree<IZoweUSSTreeN
                         } else {
                             node = new ZoweUSSNode(nodeName,
                                 vscode.TreeItemCollapsibleState.None,
-                                theProfile, session, "",
+                                profileFavNode, session, "",
                                 false, profileName);
                             node.command = {
                                 command: "zowe.uss.ZoweUSSNode.open",
