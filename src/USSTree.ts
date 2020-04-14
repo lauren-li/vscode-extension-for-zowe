@@ -445,8 +445,10 @@ export class USSTree extends ZoweTreeProvider implements IZoweTree<IZoweUSSTreeN
                     const sesName = line.substring(1, line.lastIndexOf("]")).trim();
                     const profile = Profiles.getInstance().loadNamedProfile(sesName);
                     const session = ZoweExplorerApiRegister.getUssApi(profile).getSession();
-                    profileFavNode = new ZoweUSSNode(profileName, vscode.TreeItemCollapsibleState.Collapsed,
+                    profileFavNode = new ZoweUSSNode("Favorites", vscode.TreeItemCollapsibleState.Collapsed,
                         this.mFavoriteSession, session, null, false, profileName);
+                    profileFavNode.contextValue = extension.USS_SESSION_CONTEXT;
+                    profileFavNode.fullPath = "";
                 }
                 this.mFavorites.push(profileFavNode);
             } catch (e) {
