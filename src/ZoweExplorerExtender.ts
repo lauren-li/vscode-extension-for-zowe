@@ -16,6 +16,8 @@ import { ZoweExplorerApi } from "./api/ZoweExplorerApi";
 import { Profiles } from "./Profiles";
 import { getProfile, getLinkedProfile } from "./utils/profileLink";
 import { IZoweTree } from "./api/IZoweTree";
+import { USSTree } from "./uss/USSTree";
+import { LOG } from "./globals";
 
 /**
  * The Zowe Explorer API Register singleton that gets exposed to other VS Code
@@ -104,7 +106,9 @@ export class ZoweExplorerExtender implements ZoweExplorerApi.IApiExplorerExtende
         await ZoweExplorerExtender.refreshProfilesQueue.add( () => Profiles.getInstance().refresh());
         const profilesForType = Profiles.getInstance().getProfiles("rse"); // TO-DO
         this.datasetProvider?.addSession(); // TO-DO add profileType param to load non-zosmf default profiles
+        this.datasetProvider?.initialize(LOG);
         this.ussFileProvider?.addSession(); // TO-DO add profileType param to load non-zosmf default profiles
+        this.ussFileProvider?.initialize(LOG);
         this.jobsProvider?.addSession(); // TO-DO add profileType param to load non-zosmf default profiles
     }
 }

@@ -10,6 +10,7 @@
 */
 
 import * as vscode from "vscode";
+import { Logger } from "@zowe/imperative";
 import { IZoweNodeType, IZoweDatasetTreeNode, IZoweUSSTreeNode } from "./IZoweTreeNode";
 import { PersistenceSchemaEnum } from "../globals";
 
@@ -48,6 +49,8 @@ export interface IZoweTree<T> extends vscode.TreeDataProvider<T> {
      * @param node This parameter identifies the node that needs to be called
      */
     editSession(node: IZoweNodeType): Promise<void>;
+
+    initialize?(log: Logger);
 
     /**
      * Add a new session to the container
