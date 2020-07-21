@@ -30,7 +30,7 @@ export class ZoweExplorerApiRegister implements ZoweExplorerApi.IApiRegisterClie
      * Access the singleton instance.
      * @returns {ZoweExplorerApiRegister} the ZoweExplorerApiRegister singleton instance
      */
-    public static getInstance(
+    public static createInstance(
       datasetProvider?: IZoweTree<IZoweDatasetTreeNode>,
       ussFileProvider?: IZoweTree<IZoweUSSTreeNode>,
       jobsProvider?: IZoweTree<IZoweJobTreeNode>
@@ -40,7 +40,18 @@ export class ZoweExplorerApiRegister implements ZoweExplorerApi.IApiRegisterClie
         ZoweExplorerApiRegisterInst.ussFileProvider = ussFileProvider;
         ZoweExplorerApiRegisterInst.jobsProvider = jobsProvider;
         return ZoweExplorerApiRegisterInst;
-  }
+    }
+
+    public static getInstance(
+        datasetProvider?: IZoweTree<IZoweDatasetTreeNode>,
+        ussFileProvider?: IZoweTree<IZoweUSSTreeNode>,
+        jobsProvider?: IZoweTree<IZoweJobTreeNode>
+      ): ZoweExplorerApiRegister {
+        if (datasetProvider || ussFileProvider || jobsProvider || !this.ZoweExplorerApiRegisterInst) {
+            this.createInstance(datasetProvider, ussFileProvider, jobsProvider);
+        }
+        return this.ZoweExplorerApiRegisterInst;
+      }
 
     /**
      * Static lookup of an API for USS for a given profile.
