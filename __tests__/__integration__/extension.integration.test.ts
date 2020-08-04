@@ -809,7 +809,7 @@ describe("Extension Integration Tests", () => {
             const log = Logger.getAppLogger();
             await vscode.workspace.getConfiguration().update("Zowe-DS-Persistent",
                 { persistence: true, favorites: [] }, vscode.ConfigurationTarget.Global);
-            const testTree3 = await createDatasetTree(log);
+            const testTree3 = await createDatasetTree();
             expect(testTree3.mFavorites).to.deep.equal([]);
         }).timeout(TIMEOUT);
 
@@ -822,7 +822,7 @@ describe("Extension Integration Tests", () => {
             `[${profileName}]: ${pattern}.EXT{session}`];
             await vscode.workspace.getConfiguration().update("Zowe-DS-Persistent",
                 { persistence: true, favorites }, vscode.ConfigurationTarget.Global);
-            const testTree3 = await createDatasetTree(log);
+            const testTree3 = await createDatasetTree();
             const favoritesArray = [`[${profileName}]: ${pattern}.EXT.PDS`,
             `[${profileName}]: ${pattern}.EXT.PS`,
             `[${profileName}]: ${pattern}.EXT.SAMPLE.PDS`,
@@ -838,7 +838,7 @@ describe("Extension Integration Tests", () => {
                 { persistence: true, favorites }, vscode.ConfigurationTarget.Global);
 
             const showErrorStub = sandbox.spy(vscode.window, "showErrorMessage");
-            await createDatasetTree(log);
+            await createDatasetTree();
             const gotCalled = showErrorStub.calledWith("Favorites file corrupted: " + corruptedFavorite);
             expect(gotCalled).to.equal(true);
         }).timeout(TIMEOUT);

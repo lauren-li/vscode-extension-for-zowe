@@ -121,7 +121,7 @@ export class DatasetTree extends ZoweTreeProvider implements IZoweTree<IZoweData
     public async getChildren(element?: IZoweDatasetTreeNode | undefined): Promise<IZoweDatasetTreeNode[]> {
         if (element) {
             if (contextually.isFavoriteContext(element)) {
-                this.initialize(this.log);
+                await this.initialize(this.log);
                 return this.mFavorites;
             }
             await Profiles.getInstance().checkCurrentProfile(element.getProfile());

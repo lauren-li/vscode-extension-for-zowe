@@ -110,7 +110,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<ZoweEx
         // Initialize dataset provider
         datasetProvider = await createDatasetTree();
         // Initialize uss provider
-        ussFileProvider = await createUSSTree(globals.LOG);
+        ussFileProvider = await createUSSTree();
         // Initialize Jobs provider with the created session and the selected pattern
         jobsProvider = await createJobsTree(globals.LOG);
     } catch (err) {

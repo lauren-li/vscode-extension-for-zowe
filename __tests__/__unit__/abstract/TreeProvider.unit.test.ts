@@ -74,7 +74,7 @@ async function createGlobalMocks() {
     globalMocks.withProgress.mockImplementation((progLocation, callback) => callback());
     globalMocks.withProgress.mockReturnValue(globalMocks.testResponse);
     globalMocks.testSessionNode = createUSSSessionNode(globalMocks.testSession, globalMocks.testProfile);
-    globalMocks.testUSSTree = await createUSSTree(Logger.getAppLogger());
+    globalMocks.testUSSTree = await createUSSTree();
     Object.defineProperty(globalMocks.testUSSTree, "refresh", { value: globalMocks.refresh, configurable: true });
     globalMocks.testUSSTree.mSessionNodes.push(globalMocks.testSessionNode);
     globalMocks.mockLoadNamedProfile.mockReturnValue(globalMocks.testProfile);

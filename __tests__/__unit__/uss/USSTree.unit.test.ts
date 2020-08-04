@@ -136,7 +136,7 @@ describe("USSTree Unit Tests - Function USSTree.initialize()", () => {
     it("Tests that initialize() is executed successfully", async () => {
         const globalMocks = await createGlobalMocks();
 
-        const testTree1 = await createUSSTree(Logger.getAppLogger());
+        const testTree1 = await createUSSTree();
         expect(testTree1.mSessionNodes).toBeDefined();
         expect(testTree1.mFavorites.length).toBe(2);
 
@@ -176,7 +176,7 @@ describe("USSTree Unit Tests - Function initializeUSSTree()", () => {
             }
         });
 
-        const testTree1 = await createUSSTree(Logger.getAppLogger());
+        const testTree1 = await createUSSTree();
         expect(testTree1.mFavorites.length).toBe(2);
         expect(testTree1.mFavorites[0].fullPath).toEqual("/u/aDir");
         expect(testTree1.mFavorites[1].label).toEqual("[test]: myFile.txt");

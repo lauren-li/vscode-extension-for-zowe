@@ -34,9 +34,8 @@ const localize: nls.LocalizeFunc = nls.loadMessageBundle();
  *
  * @export
  */
-export async function createUSSTree(log: Logger) {
+export async function createUSSTree() {
     const tree = new USSTree();
-    await tree.initialize(log);
     await tree.addSession();
     return tree;
 }
@@ -145,6 +144,7 @@ export class USSTree extends ZoweTreeProvider implements IZoweTree<IZoweUSSTreeN
     public async getChildren(element?: IZoweUSSTreeNode | undefined): Promise<IZoweUSSTreeNode[]> {
         if (element) {
             if (contextually.isFavoriteContext(element)) {
+                await this.initialize(this.log);
                 return this.mFavorites;
             }
             return element.getChildren();
