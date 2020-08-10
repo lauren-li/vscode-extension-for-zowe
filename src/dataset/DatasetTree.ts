@@ -218,6 +218,8 @@ export class DatasetTree extends ZoweTreeProvider implements IZoweTree<IZoweData
                     if (icon) {
                         node.iconPath = icon.path;
                     }
+                    // tslint:disable-next-line: no-console
+                    console.log(this.mFavorites.find((mFavorite) => mFavorite.label === profileName ));
                     favsForProfile.push(node);
                 } catch (e) {
                     const errMessage: string =
@@ -324,6 +326,7 @@ export class DatasetTree extends ZoweTreeProvider implements IZoweTree<IZoweData
      */
     public async addFavorite(node: IZoweDatasetTreeNode) {
         let temp: ZoweDatasetNode;
+        const profileName = node.getProfileName();
         if (contextually.isDsMember(node)) {
             if (contextually.isFavoritePds(node.getParent())) {
                 vscode.window.showInformationMessage(localize("addFavorite", "PDS already in favorites"));
@@ -442,9 +445,15 @@ export class DatasetTree extends ZoweTreeProvider implements IZoweTree<IZoweData
     }
 
     public async updateFavorites() {
-        const settings = this.mFavorites.map((fav) =>
-        fav.label + "{" + contextually.getBaseContext(fav) + "}"
-        );
+        let settings: string[] = [];
+        let settingsForProfile: string[] = [];
+        for (const profileName in this.mFavoritesByProfile) {
+            if (this.mFavoritesByProfile.hasOwnProperty(profileName)) {
+                settingsForProfile = this.mFavoritesByProfile[profileName].map((fav) =>
+                fav.label + "{" + contextually.getBaseContext(fav) + "}");
+                settings = settings.concat(settingsForProfile);
+            }
+        }
         this.mHistory.updateFavorites(settings);
     }
 
