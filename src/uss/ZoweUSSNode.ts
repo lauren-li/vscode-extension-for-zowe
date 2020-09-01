@@ -331,22 +331,38 @@ export class ZoweUSSNode extends ZoweTreeNode implements IZoweUSSTreeNode {
         try {
             await ZoweExplorerApiRegister.getUssApi(this.profile).delete(this.fullPath, contextually.isUssDirectory(this));
             this.getParent().dirty = true;
-            try {
-                if (fs.existsSync(filePath)) {
-                    fs.unlinkSync(filePath);
-                }
-                // tslint:disable-next-line: no-empty
-            } catch (err) {
-            }
+            // try {
+            //     if (fs.existsSync(filePath)) {
+            //         fs.unlinkSync(filePath);
+            //     }
+            //     // tslint:disable-next-line: no-empty
+            // } catch (err) {
+            // }
         } catch (err) {
             vscode.window.showErrorMessage(localize("deleteUSSNode.error.node", "Unable to delete node: ") + err.message);
             throw (err);
         }
 
         // Remove node from the USS Favorites tree
-        ussFileProvider.removeFavorite(this);
+        // this.getSessionNode().dirty = true;
+        await ussFileProvider.removeFavorite(this);
         ussFileProvider.removeFileHistory(`[${this.getProfileName()}]: ${this.parentPath}/${this.label}`);
-        ussFileProvider.refresh();
+
+        if (this.getParent() && this.getParent().contextValue !== globals.USS_SESSION_CONTEXT) {
+            ussFileProvider.refreshElement(this.getParent());
+            const favNode = ussFileProvider.findFavoritedNode(this.getParent());
+            if (favNode) { ussFileProvider.refreshElement(favNode);}
+        } else {
+            ussFileProvider.refresh();
+        }
+
+        try {
+            if (fs.existsSync(filePath)) {
+                fs.unlinkSync(filePath);
+            }
+            // tslint:disable-next-line: no-empty
+        } catch (err) {
+        }
     }
 
     /**

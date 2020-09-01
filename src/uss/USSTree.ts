@@ -556,6 +556,21 @@ export class USSTree extends ZoweTreeProvider implements IZoweTree<IZoweUSSTreeN
         return updatedFavsForProfile;
     }
 
+    /**
+     * Finds the equivalent node as a favorite.
+     * Used to ensure functions like delete, rename are synced between non-favorite nodes and their favorite equivalents.
+     *
+     * @param node
+     */
+    public findFavoritedNode(node: IZoweUSSTreeNode) {
+        // Get node's profile node in favorites
+        const profileName = node.getProfileName();
+        const profileNodeInFavorites = this.findMatchingProfileInArray(this.mFavorites, profileName);
+        return profileNodeInFavorites.children.find(
+            (temp) => (temp.label === node.getLabel()) && (temp.contextValue.includes(node.contextValue))
+        );
+    }
+
     public async addFileHistory(criteria: string) {
         this.mHistory.addFileHistory(criteria);
         this.refresh();
