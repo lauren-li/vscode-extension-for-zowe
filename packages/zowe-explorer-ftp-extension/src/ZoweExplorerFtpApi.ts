@@ -28,16 +28,16 @@ import { CoreUtils } from "@zowe/zos-ftp-for-zowe-cli/lib/api/CoreUtils";
 /* eslint-disable @typescript-eslint/no-unsafe-call */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-export class FtpUssApi implements ZoweExplorerApi.IUss {
+export class FtpApiCommon implements ZoweExplorerApi.ICommon {
     private session?: imperative.Session;
 
     public constructor(public profile?: imperative.IProfileLoaded) {}
 
-    public static getProfileTypeName(): string {
+    getProfileTypeName(): string {
         return "zftp";
     }
 
-    public getSession(profile?: imperative.IProfileLoaded): imperative.Session {
+    getSession(profile?: imperative.IProfileLoaded): imperative.Session {
         if (!this.session) {
             const ftpProfile = (profile || this.profile)?.profile;
             if (!ftpProfile) {
@@ -55,11 +55,9 @@ export class FtpUssApi implements ZoweExplorerApi.IUss {
         }
         return this.session;
     }
+}
 
-    public getProfileTypeName(): string {
-        return FtpUssApi.getProfileTypeName();
-    }
-
+export class FtpUssApi extends FtpApiCommon implements ZoweExplorerApi.IUss {
     public async fileList(ussFilePath: string): Promise<zowe.IZosFilesResponse> {
         const result = this.getDefaultResponse();
         const connection = await this.ftpClient(this.checkedProfile());
@@ -281,5 +279,70 @@ export class FtpUssApi implements ZoweExplorerApi.IUss {
                 }
             });
         });
+    }
+}
+
+export class FtpMvsApi extends FtpApiCommon implements ZoweExplorerApi.IMvs {
+    dataSet(filter: string, options?: zowe.IListOptions): Promise<zowe.IZosFilesResponse> {
+        throw new Error("Method not implemented.");
+    }
+    allMembers(dataSetName: string, options?: zowe.IListOptions): Promise<zowe.IZosFilesResponse> {
+        throw new Error("Method not implemented.");
+    }
+    getContents(dataSetName: string, options?: zowe.IDownloadOptions): Promise<zowe.IZosFilesResponse> {
+        throw new Error("Method not implemented.");
+    }
+    putContents(
+        inputFilePath: string,
+        dataSetName: string,
+        options?: zowe.IUploadOptions
+    ): Promise<zowe.IZosFilesResponse> {
+        throw new Error("Method not implemented.");
+    }
+    createDataSet(
+        dataSetType: zowe.CreateDataSetTypeEnum,
+        dataSetName: string,
+        options?: Partial<zowe.ICreateDataSetOptions>
+    ): Promise<zowe.IZosFilesResponse> {
+        throw new Error("Method not implemented.");
+    }
+    createDataSetMember(dataSetName: string, options?: zowe.IUploadOptions): Promise<zowe.IZosFilesResponse> {
+        throw new Error("Method not implemented.");
+    }
+    allocateLikeDataSet(dataSetName: string, likeDataSetName: string): Promise<zowe.IZosFilesResponse> {
+        throw new Error("Method not implemented.");
+    }
+    copyDataSetMember(
+        { dataSetName: fromDataSetName, memberName: fromMemberName }: zowe.IDataSet,
+        { dataSetName: toDataSetName, memberName: toMemberName }: zowe.IDataSet,
+        options?: { replace?: boolean | undefined }
+    ): Promise<zowe.IZosFilesResponse> {
+        throw new Error("Method not implemented.");
+    }
+    renameDataSet(currentDataSetName: string, newDataSetName: string): Promise<zowe.IZosFilesResponse> {
+        throw new Error("Method not implemented.");
+    }
+    renameDataSetMember(
+        dataSetName: string,
+        currentMemberName: string,
+        newMemberName: string
+    ): Promise<zowe.IZosFilesResponse> {
+        throw new Error("Method not implemented.");
+    }
+    hMigrateDataSet(dataSetName: string): Promise<zowe.IZosFilesResponse> {
+        throw new Error("Method not implemented.");
+    }
+    hRecallDataSet(dataSetName: string): Promise<zowe.IZosFilesResponse> {
+        throw new Error("Method not implemented.");
+    }
+    deleteDataSet(dataSetName: string, options?: zowe.IDeleteDatasetOptions): Promise<zowe.IZosFilesResponse> {
+        throw new Error("Method not implemented.");
+    }
+    profile?: imperative.IProfileLoaded | undefined;
+    getProfileTypeName(): string {
+        throw new Error("Method not implemented.");
+    }
+    getSession(profile?: imperative.IProfileLoaded): imperative.Session {
+        throw new Error("Method not implemented.");
     }
 }
