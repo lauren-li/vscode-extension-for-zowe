@@ -23,7 +23,7 @@
       "isBackground": true,
       "type": "shell",
       "options": {
-        "cwd": "packages/zowe-explorer"
+        "cwd": "packages/zowe-explorer-ftp-extension"
       },
       "command": "yarn",
       "args": ["watch"],
