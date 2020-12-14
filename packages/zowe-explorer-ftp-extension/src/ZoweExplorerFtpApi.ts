@@ -17,6 +17,7 @@ import * as zowe from "@zowe/cli";
 import * as imperative from "@zowe/imperative";
 
 import { ZoweExplorerApi } from "@zowe/zowe-explorer-api";
+import * as zftp from "@zowe/zos-ftp-for-zowe-cli";
 import { IZosFTPProfile } from "@zowe/zos-ftp-for-zowe-cli/lib/api/doc/IZosFTPProfile";
 import { FTPConfig } from "@zowe/zos-ftp-for-zowe-cli/lib/api/FTPConfig";
 import { StreamUtils } from "@zowe/zos-ftp-for-zowe-cli/lib/api/StreamUtils";
@@ -269,8 +270,18 @@ export class FtpUssApi extends FtpApiCommon implements ZoweExplorerApi.IUss {
 }
 
 export class FtpMvsApi extends FtpApiCommon implements ZoweExplorerApi.IMvs {
-    dataSet(filter: string, options?: zowe.IListOptions): Promise<zowe.IZosFilesResponse> {
-        throw new Error("Method not implemented.");
+    async dataSet(filter: string, options?: zowe.IListOptions): Promise<zowe.IZosFilesResponse> {
+        const result = this.getDefaultResponse();
+        const connection = await this.ftpClient(this.checkedProfile());
+        if (connection) {
+            const response = await zftp.DataSetUtils.listDataSets(connection, filter);
+            if (response) {
+                result.success = true;
+                result.apiResponse.items = response;
+            }
+        }
+        return result;
+        // throw new Error("Method not implemented.");
     }
     allMembers(dataSetName: string, options?: zowe.IListOptions): Promise<zowe.IZosFilesResponse> {
         throw new Error("Method not implemented.");
@@ -331,4 +342,31 @@ export class FtpMvsApi extends FtpApiCommon implements ZoweExplorerApi.IMvs {
     // getSession(profile?: imperative.IProfileLoaded): imperative.Session {
     //     throw new Error("Method not implemented.");
     // }
+
+    private getDefaultResponse(): zowe.IZosFilesResponse {
+        return {
+            success: false,
+            commandResponse: "Could not get a valid FTP connection.",
+            apiResponse: { items: [] },
+        };
+    }
+    private checkedProfile(): imperative.IProfileLoaded {
+        if (!this.profile?.profile) {
+            throw new Error(
+                "Internal error: ZoweVscFtpUssRestApi instance was not initialized with a valid Zowe profile."
+            );
+        }
+        return this.profile;
+    }
+    private async ftpClient(profile: imperative.IProfileLoaded): Promise<any> {
+        const ftpProfile = profile.profile as IZosFTPProfile;
+        // eslint-disable-next-line @typescript-eslint/no-unsafe-return
+        return await FTPConfig.connectFromArguments({
+            host: ftpProfile.host,
+            user: ftpProfile.user,
+            password: ftpProfile.password,
+            port: ftpProfile.port,
+            secureFtp: ftpProfile.secureFtp,
+        });
+    }
 }
