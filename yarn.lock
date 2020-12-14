@@ -1984,10 +1984,16 @@
     "@zowe/zos-uss-for-zowe-sdk" "6.24.2"
     minimatch "3.0.4"
 
-"@zowe/zos-ftp-for-zowe-cli@1.2.0":
-  version "1.2.0"
-  resolved "https://registry.npmjs.org/@zowe/zos-ftp-for-zowe-cli/-/zos-ftp-for-zowe-cli-1.2.0.tgz#26971c6cd0bd0232365c2d13a37e9d161c14ad9e"
-  integrity sha512-++V3UhH/o9kt/RmBWmkq9v70OEpljcwAHnqEqtcorOsn2iGSzsUFgcaItlAK00TD+ZyvrO2Ih6P0lMDtP1dHCg==
+"@zowe/zos-ftp-for-zowe-cli@file:../../zowe-github/zowe-cli-ftp-plugin/zowe-zos-ftp-for-zowe-cli-1.2.1.tgz":
+  version "1.2.1"
+  resolved "file:../../zowe-github/zowe-cli-ftp-plugin/zowe-zos-ftp-for-zowe-cli-1.2.1.tgz#085267671079dac1c2c745c06f1fa6389409e13e"
+  dependencies:
+    zos-node-accessor "1.0.7"
+
+"@zowe/zos-ftp-for-zowe-cli@file:zowe-zos-ftp-for-zowe-cli-1.2.1.tgz":
+  version "1.2.1"
+  uid "085267671079dac1c2c745c06f1fa6389409e13e"
+  resolved "file:zowe-zos-ftp-for-zowe-cli-1.2.1.tgz#085267671079dac1c2c745c06f1fa6389409e13e"
   dependencies:
     zos-node-accessor "1.0.7"
 

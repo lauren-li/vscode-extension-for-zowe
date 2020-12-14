@@ -38,7 +38,7 @@
   },
   "dependencies": {
     "@zowe/zowe-explorer-api": "1.10.1",
-    "@zowe/zos-ftp-for-zowe-cli": "1.2.0",
+    "@zowe/zos-ftp-for-zowe-cli": "/Users/Lauren.Li@ibm.com/Desktop/Repositories/zowe-github/zowe-cli-ftp-plugin/zowe-zos-ftp-for-zowe-cli-1.2.1.tgz",
     "tmp": "0.2.1"
   },
   "devDependencies": {
