@@ -147,7 +147,18 @@ export class DatasetTree extends ZoweTreeProvider implements IZoweTree<IZoweData
                 return favsForProfile;
             }
             await Profiles.getInstance().checkCurrentProfile(element.getProfile());
-            const response = await element.getChildren();
+            let response;
+            if (element.contextValue && element.contextValue !== globals.DS_PDS_CONTEXT) {
+                response = await element.getChildren();
+            } else {
+                // if pds
+                if (element.collapsibleState === vscode.TreeItemCollapsibleState.Collapsed) {
+                    response = element.children;
+                } else {
+                    response = await element.getChildren();
+                }
+            }
+
             for (const item of response) {
                 item.memberPattern = element.memberPattern;
                 this.refreshElement(item);
